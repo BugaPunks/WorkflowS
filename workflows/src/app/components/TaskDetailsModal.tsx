@@ -1,58 +1,83 @@
 "use client";
 
-import { useState, useEffect, FormEvent } from 'react';
-import { Task, Comment } from '@/types';
+import { FC, useState, FormEvent, useEffect } from 'react';
+import { Task, Comment as CommentType } from '@/types';
 
-const TaskDetailsModal = ({ task, onClose, onUpdate }: { task: Task; onClose: () => void; onUpdate: () => void; }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState(task);
-  // ... (comments logic remains the same)
+interface TaskDetailsModalProps {
+  task: Task;
+  onClose: () => void;
+  onUpdate: () => void;
+}
 
-  const handleUpdate = async (e: FormEvent) => {
-    e.preventDefault();
-    await fetch(`/api/tasks/${task.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    });
-    setIsEditing(false);
-    onUpdate();
+const TaskDetailsModal: FC<TaskDetailsModalProps> = ({ task, onClose, onUpdate }) => {
+  const [commentText, setCommentText] = useState('');
+  const [comments, setComments] = useState<CommentType[]>([]);
+
+  const fetchComments = async () => {
+    try {
+      const res = await fetch(`/api/tasks/${task.id}/comments`);
+      if (res.ok) {
+        const data = await res.json();
+        setComments(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch comments:", error);
+    }
   };
 
-  const handleDelete = async () => {
-    if (confirm("Delete this task?")) {
-      await fetch(`/api/tasks/${task.id}`, { method: 'DELETE' });
-      onClose(); // Close the modal
-      onUpdate();
+  useEffect(() => {
+    fetchComments();
+  }, [task.id]);
+
+  const handleCommentSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!commentText.trim()) return;
+
+    try {
+      await fetch(`/api/tasks/${task.id}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: commentText }),
+      });
+      setCommentText('');
+      fetchComments(); // Refresh comments
+      onUpdate(); // Refresh board data
+    } catch (error) {
+      console.error("Failed to post comment:", error);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
-      <div className="bg-white rounded-lg p-6 w-full max-w-lg">
-        {!isEditing ? (
-          <div>
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">{task.title}</h2>
-              <div>
-                <button onClick={() => setIsEditing(true)} className="text-sm bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
-                <button onClick={handleDelete} className="text-sm bg-red-600 text-white px-2 py-1 rounded ml-2">Delete</button>
-                <button onClick={onClose} className="text-2xl font-bold ml-4">&times;</button>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">{task.title}</h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-800">&times;</button>
+        </div>
+        <p className="text-gray-700 mb-4">{task.description}</p>
+
+        <div className="mb-4">
+          <h3 className="font-semibold text-lg mb-2">Comments</h3>
+          <div className="space-y-2 mb-4 max-h-48 overflow-y-auto">
+            {comments.map(comment => (
+              <div key={comment.id} className="text-sm">
+                <p><strong>{comment.author.name || 'User'}</strong>: {comment.text}</p>
               </div>
-            </div>
-            <p>{task.description}</p>
+            ))}
           </div>
-        ) : (
-          <form onSubmit={handleUpdate}>
-            <input name="title" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full text-2xl font-bold border rounded p-1" />
-            <textarea name="description" value={formData.description || ''} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full mt-2 border rounded p-1" />
-            <div className="flex justify-end gap-2 mt-2">
-              <button type="button" onClick={() => setIsEditing(false)}>Cancel</button>
-              <button type="submit">Save</button>
-            </div>
+          <form onSubmit={handleCommentSubmit}>
+            <textarea
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder="Add a comment..."
+              className="w-full p-2 border rounded"
+              rows={2}
+            />
+            <button type="submit" className="mt-2 bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600">
+              Comment
+            </button>
           </form>
-        )}
-        {/* ... (comments section remains the same) */}
+        </div>
       </div>
     </div>
   );

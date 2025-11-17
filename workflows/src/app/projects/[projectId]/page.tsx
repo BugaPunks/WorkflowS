@@ -4,6 +4,7 @@ import { FC, useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Project } from "@/types";
+import Link from "next/link";
 
 // Import the new tab components
 import SprintsTab from "@/app/components/SprintsTab";
@@ -27,35 +28,6 @@ const ProjectPage: FC<ProjectPageProps> = ({ params }) => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("backlog");
 
-  useEffect(() => {
-    const fetchProject = async () => {
-      if (!projectId) return;
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/projects/${projectId}`);
-        if (!res.ok) {
-          throw new Error("Failed to fetch project");
-        }
-        const data = await res.json();
-        setProject(data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProject();
-  }, [projectId]);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!project) {
-    return <div>Project not found</div>;
-  }
-
   const fetchProject = async () => {
     if (!projectId) return;
     setLoading(true);
@@ -76,6 +48,14 @@ const ProjectPage: FC<ProjectPageProps> = ({ params }) => {
   useEffect(() => {
     fetchProject();
   }, [projectId]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!project) {
+    return <div>Project not found</div>;
+  }
 
   const renderTabContent = () => {
     if (!project) return null;
@@ -99,7 +79,12 @@ const ProjectPage: FC<ProjectPageProps> = ({ params }) => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">{project.name}</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-3xl font-bold">{project.name}</h1>
+        <Link href={`/projects/${project.id}/board`} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Go to Board
+        </Link>
+      </div>
       <p className="mb-6">{project.description}</p>
 
       <div className="flex border-b mb-4">

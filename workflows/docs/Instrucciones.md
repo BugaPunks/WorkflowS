@@ -194,7 +194,7 @@ Iteración 5 (Cierre):
 
 Puedes usar estas historias de tu documento para pedirle a una IA que genere código, pruebas o modelos de datos.
 
-    HU 2 (Docente): "Como docente, quiero crear proyectos, definir sus fechas de inicio y fin, y asignar estudiantes con roles específicos (Scrum Master, Product Owner, Team Developer) para organizar el trabajo colaborativo de manera efectiva." 
+    HU 2 (Docente): "Como docente, quiero crear proyectos, definir sus fechas de inicio y fin, y asignar estudiantes con roles específicos (Scrum Master, Product Owner, Team Developer) para organizar el trabajo colaborativo de manera efectiva."
 
 HU 3 (Product Owner): "Como Product Owner, quiero crear, modificar y priorizar historias de usuario, así como definir criterios de aceptación para cada una, con el fin de establecer claramente los requisitos del proyecto."
 
