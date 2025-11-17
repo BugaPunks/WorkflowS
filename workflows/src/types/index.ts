@@ -18,6 +18,13 @@ export interface Document {
   uploadedBy: { name: string | null };
 }
 
+export interface Comment {
+  id: string;
+  text: string;
+  createdAt: string;
+  author: { name?: string | null; };
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -26,6 +33,7 @@ export interface Task {
   storyPoints?: number | null;
   assignedTo?: User | null;
   userStory?: UserStory;
+  comments?: Comment[];
 }
 
 export interface UserStory {
