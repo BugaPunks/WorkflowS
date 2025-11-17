@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   const user = session?.user as { id?: string; role?: RoleName };
 
-  if (!session || user?.role !== RoleName.TEACHER) {
+  if (!session || user?.role !== RoleName.DOCENTE) {
     return new NextResponse("Forbidden", { status: 403 });
   }
 
@@ -20,8 +20,18 @@ export async function POST(req: Request) {
       return new NextResponse("Missing required fields", { status: 400 });
     }
 
+    // Get projectId from sprint
+    const sprint = await prisma.sprint.findUnique({
+      where: { id: sprintId },
+      select: { projectId: true },
+    });
+    if (!sprint) {
+      return new NextResponse("Sprint not found", { status: 404 });
+    }
+
     const evaluation = await prisma.evaluation.create({
       data: {
+        projectId: sprint.projectId,
         sprintId,
         studentId,
         evaluatorId: user.id as string,

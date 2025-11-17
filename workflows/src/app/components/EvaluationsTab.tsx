@@ -37,7 +37,7 @@ const EvaluationsTab: FC<{ project: Project; onUpdate: () => void }> = ({ projec
     setSprintUsers(project.users);
   }, [selectedSprintId]);
 
-  const isTeacher = session?.user?.role === 'TEACHER';
+  const isTeacher = session?.user?.role === 'DOCENTE';
 
   return (
     <div className="p-4 bg-white rounded-lg shadow-md">
