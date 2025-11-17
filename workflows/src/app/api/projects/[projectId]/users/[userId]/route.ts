@@ -5,16 +5,21 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const prisma = new PrismaClient();
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { projectId: string; userId: string } }
-) {
+type RouteContext = {
+  params: Promise<{
+    projectId: string;
+    userId: string;
+  }>;
+};
+
+// UPDATE a user's role in a project
+export async function PUT(req: NextRequest, context: RouteContext) {
   const session = await getServerSession(authOptions);
   if (!session) return new NextResponse("Unauthorized", { status: 401 });
 
   try {
     const { role } = await req.json();
-    const { projectId, userId } = params;
+    const { projectId, userId } = await context.params;
 
     const updatedProjectUser = await prisma.projectUser.update({
       where: {
@@ -33,15 +38,13 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { projectId: string; userId: string } }
-) {
+// DELETE a user from a project
+export async function DELETE(req: NextRequest, context: RouteContext) {
   const session = await getServerSession(authOptions);
   if (!session) return new NextResponse("Unauthorized", { status: 401 });
 
   try {
-    const { projectId, userId } = params;
+    const { projectId, userId } = await context.params;
 
     await prisma.projectUser.delete({
       where: {

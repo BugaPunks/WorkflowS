@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -28,6 +25,12 @@ enum UserStoryStatus {
   DONE
 }
 
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
 model User {
   id        String      @id @default(cuid())
   email     String      @unique
@@ -35,6 +38,7 @@ model User {
   password  String
   role      RoleName    @default(ESTUDIANTE)
   projects  ProjectUser[]
+  tasks     Task[]      @relation("AssignedTasks")
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 }
@@ -47,6 +51,7 @@ model Project {
   endDate     DateTime
   users       ProjectUser[]
   stories     UserStory[]
+  sprints     Sprint[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }
@@ -58,8 +63,19 @@ model ProjectUser {
   project   Project   @relation(fields: [projectId], references: [id])
   projectId String
   role      ScrumRole
-
   @@unique([userId, projectId])
+}
+
+model Sprint {
+  id        String      @id @default(cuid())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  project   Project     @relation(fields: [projectId], references: [id])
+  projectId String
+  stories   UserStory[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 }
 
 model UserStory {
@@ -70,6 +86,22 @@ model UserStory {
   status      UserStoryStatus @default(TODO)
   project     Project         @relation(fields: [projectId], references: [id])
   projectId   String
+  sprint      Sprint?         @relation(fields: [sprintId], references: [id])
+  sprintId    String?
+  tasks       Task[]
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
+}
+
+model Task {
+  id           String     @id @default(cuid())
+  title        String
+  description  String?
+  status       TaskStatus @default(PENDING)
+  userStory    UserStory  @relation(fields: [userStoryId], references: [id])
+  userStoryId  String
+  assignedTo   User?      @relation("AssignedTasks", fields: [assignedToId], references: [id])
+  assignedToId String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }

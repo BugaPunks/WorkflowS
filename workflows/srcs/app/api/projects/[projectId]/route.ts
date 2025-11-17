@@ -5,29 +5,28 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const prisma = new PrismaClient();
 
-type RouteContext = {
-  params: Promise<{
-    userId: string;
-  }>;
-};
-
-// UPDATE a user's role
-export async function PUT(req: NextRequest, context: RouteContext) {
+// Let TypeScript infer the type of the second argument
+export async function GET(req: NextRequest, { params }: { params: { projectId: string } }) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user?.role !== "ADMIN") {
+  if (!session) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
   try {
-    const { role } = await req.json();
-    const { userId } = await context.params;
-
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { role },
+    const { projectId } = params;
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      include: {
+        users: { include: { user: true } },
+        stories: true,
+      },
     });
 
-    return NextResponse.json(updatedUser);
+    if (!project) {
+      return new NextResponse("Project not found", { status: 404 });
+    }
+
+    return NextResponse.json(project);
   } catch (error) {
     console.error(error);
     return new NextResponse("Internal Server Error", { status: 500 });

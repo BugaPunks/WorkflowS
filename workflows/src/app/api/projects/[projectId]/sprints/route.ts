@@ -11,7 +11,7 @@ type RouteContext = {
   }>;
 };
 
-// GET all stories for a project
+// GET all sprints for a project
 export async function GET(req: NextRequest, context: RouteContext) {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -20,18 +20,19 @@ export async function GET(req: NextRequest, context: RouteContext) {
 
   try {
     const { projectId } = await context.params;
-    const stories = await prisma.userStory.findMany({
+    const sprints = await prisma.sprint.findMany({
       where: { projectId },
-      orderBy: { priority: "asc" },
+      orderBy: { startDate: "asc" },
+      include: { stories: true },
     });
-    return NextResponse.json(stories);
+    return NextResponse.json(sprints);
   } catch (error) {
     console.error(error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
 
-// CREATE a new story in a project
+// CREATE a new sprint in a project
 export async function POST(req: NextRequest, context: RouteContext) {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -40,23 +41,23 @@ export async function POST(req: NextRequest, context: RouteContext) {
 
   try {
     const body = await req.json();
-    const { title, description, priority } = body;
+    const { name, startDate, endDate } = body;
     const { projectId } = await context.params;
 
-    if (!title || !priority) {
+    if (!name || !startDate || !endDate) {
       return new NextResponse("Missing required fields", { status: 400 });
     }
 
-    const story = await prisma.userStory.create({
+    const sprint = await prisma.sprint.create({
       data: {
-        title,
-        description,
-        priority,
+        name,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
         projectId,
       },
     });
 
-    return NextResponse.json(story);
+    return NextResponse.json(sprint);
   } catch (error) {
     console.error(error);
     return new NextResponse("Internal Server Error", { status: 500 });

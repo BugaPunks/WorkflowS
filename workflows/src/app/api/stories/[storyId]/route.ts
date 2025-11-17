@@ -7,29 +7,32 @@ const prisma = new PrismaClient();
 
 type RouteContext = {
   params: Promise<{
-    userId: string;
+    storyId: string;
   }>;
 };
 
-// UPDATE a user's role
+// UPDATE a user story (e.g., assign to a sprint)
 export async function PUT(req: NextRequest, context: RouteContext) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user?.role !== "ADMIN") {
+  if (!session) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
   try {
-    const { role } = await req.json();
-    const { userId } = await context.params;
+    const body = await req.json();
+    const { sprintId } = body;
+    const { storyId } = await context.params;
 
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { role },
+    const updatedStory = await prisma.userStory.update({
+      where: { id: storyId },
+      data: {
+        sprintId: sprintId || null, // Allow unassigning
+      },
     });
 
-    return NextResponse.json(updatedUser);
+    return NextResponse.json(updatedStory);
   } catch (error) {
-    console.error(error);
+    console.error("Failed to update user story", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
