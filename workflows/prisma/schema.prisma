@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+enum RoleName {
+  ADMIN
+  DOCENTE
+  ESTUDIANTE
+}
+
+enum ScrumRole {
+  SCRUM_MASTER
+  PRODUCT_OWNER
+  TEAM_DEVELOPER
+}
+
+enum UserStoryStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+model User {
+  id        String      @id @default(cuid())
+  email     String      @unique
+  name      String?
+  password  String
+  role      RoleName    @default(ESTUDIANTE)
+  projects  ProjectUser[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model Project {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  users       ProjectUser[]
+  stories     UserStory[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model ProjectUser {
+  id        String    @id @default(cuid())
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String
+  project   Project   @relation(fields: [projectId], references: [id])
+  projectId String
+  role      ScrumRole
+
+  @@unique([userId, projectId])
+}
+
+model UserStory {
+  id          String          @id @default(cuid())
+  title       String
+  description String?
+  priority    Int
+  status      UserStoryStatus @default(TODO)
+  project     Project         @relation(fields: [projectId], references: [id])
+  projectId   String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
