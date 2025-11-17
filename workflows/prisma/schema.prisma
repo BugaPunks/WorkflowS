@@ -7,32 +7,29 @@ datasource db {
   url      = "file:./dev.db"
 }
 
-// Enums remain the same
-
+// All Enums defined first
 enum RoleName {
   ADMIN
   DOCENTE
   ESTUDIANTE
 }
-
 enum ScrumRole {
   SCRUM_MASTER
   PRODUCT_OWNER
   TEAM_DEVELOPER
 }
-
 enum UserStoryStatus {
   TODO
   IN_PROGRESS
   DONE
 }
-
 enum TaskStatus {
   PENDING
   IN_PROGRESS
   COMPLETED
 }
 
+// All Models defined after enums
 model User {
   id                  String        @id @default(cuid())
   email               String        @unique
@@ -44,6 +41,7 @@ model User {
   evaluationsAsStudent Evaluation[]  @relation("EvaluatedUser")
   evaluationsAsAuthor  Evaluation[]  @relation("AuthoredEvaluations")
   notifications       Notification[]
+  documents           Document[]    @relation("UploadedBy")
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 }
@@ -58,6 +56,7 @@ model Project {
   stories      UserStory[]
   sprints      Sprint[]
   evaluations  Evaluation[]
+  documents    Document[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 }
@@ -110,6 +109,7 @@ model Task {
   userStoryId  String
   assignedTo   User?      @relation("AssignedTasks", fields: [assignedToId], references: [id])
   assignedToId String?
+  documents    Document[]
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 }
@@ -138,4 +138,20 @@ model Notification {
   user      User     @relation(fields: [userId], references: [id])
   userId    String
   createdAt DateTime @default(now())
+}
+
+model Document {
+  id         String   @id @default(cuid())
+  filename   String
+  url        String
+  filetype   String
+  version    Int      @default(1)
+  project    Project  @relation(fields: [projectId], references: [id])
+  projectId  String
+  task       Task?    @relation(fields: [taskId], references: [id])
+  taskId     String?
+  uploadedBy User     @relation("UploadedBy", fields: [uploadedById], references: [id])
+  uploadedById String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

@@ -1,5 +1,6 @@
 import { RoleName, ScrumRole, UserStoryStatus, TaskStatus } from "@prisma/client";
 
+// Core Models
 export interface User {
   id: string;
   name?: string | null;
@@ -7,12 +8,14 @@ export interface User {
   role: RoleName;
 }
 
-export interface ProjectUser {
+export interface Document {
   id: string;
-  user: User;
-  userId: string;
-  projectId: string;
-  role: ScrumRole;
+  filename: string;
+  url: string;
+  filetype: string;
+  version: number;
+  createdAt: string;
+  uploadedBy: { name: string | null };
 }
 
 export interface Task {
@@ -20,8 +23,9 @@ export interface Task {
   title: string;
   description?: string | null;
   status: TaskStatus;
+  storyPoints?: number | null;
   assignedTo?: User | null;
-  userStory?: UserStory; // Added for context in StudentDashboard
+  userStory?: UserStory;
 }
 
 export interface UserStory {
@@ -33,7 +37,7 @@ export interface UserStory {
   projectId: string;
   sprintId?: string | null;
   tasks?: Task[];
-  project?: Project; // Added for context in StudentDashboard
+  project?: Project;
 }
 
 export interface Sprint {
@@ -52,6 +56,14 @@ export interface Evaluation {
   sprint: { id: string; name: string };
 }
 
+export interface ProjectUser {
+  id: string;
+  user: User;
+  userId: string;
+  projectId: string;
+  role: ScrumRole;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -61,5 +73,6 @@ export interface Project {
   users: ProjectUser[];
   stories: UserStory[];
   sprints: Sprint[];
+  documents: Document[];
   evaluations?: Evaluation[];
 }
