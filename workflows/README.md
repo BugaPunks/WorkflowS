@@ -1,62 +1,29 @@
 # WorkflowS: Agile Project Management Platform
 
-Welcome to WorkflowS, a web platform designed for agile management of academic projects, leveraging the Scrum framework.
+Welcome to WorkflowS, a web platform for agile management of academic projects.
 
-## Getting Started
+---
 
-Follow these instructions to set up and run the project locally.
+## Quick Start
 
-### 1. Prerequisites
+Get the project up and running in a few commands.
 
-- [Node.js](https://nodejs.org/) (v18 or later recommended)
-- [npm](https://www.npmjs.com/)
-
-### 2. Clone the Repository
-
+### 1. Install Dependencies
+Navigate into the project folder and install the required packages.
 ```bash
-git clone <repository-url>
-cd WorkflowS/workflows
-```
-
-### 3. Install Dependencies
-
-Install all the necessary packages using npm.
-
-```bash
+cd workflows
 npm install
 ```
 
-### 4. Set Up Environment Variables
-
-The project requires environment variables to run. Copy the example file to a new `.env` file.
-
+### 2. Run the Setup Script
+This script will configure your environment variables and set up the database.
 ```bash
-cp .env.example .env
+bash setup.sh
 ```
+**Note:** The script will create a `.env` file from the example. You must open this file and add a `NEXTAUTH_SECRET`.
 
-Now, open the `.env` file and add a `NEXTAUTH_SECRET`. You can generate one with the following command:
-```bash
-openssl rand -hex 32
-```
-Paste the generated secret into your `.env` file.
-
-### 5. Set Up the Database
-
-This is a critical step. You need to apply the database schema to your local SQLite database. Prisma will create the `dev.db` file and run all migrations.
-
-```bash
-npx prisma migrate dev
-```
-
-This command will:
-- Create the SQLite database file in `prisma/dev.db`.
-- Apply all existing migrations to create the `User`, `Project`, `Sprint`, `Task`, and other tables.
-- Generate the Prisma Client based on your schema.
-
-### 6. Run the Development Server
-
-Once the database is set up, you can start the development server.
-
+### 3. Run the Development Server
+You're all set! Start the server.
 ```bash
 npm run dev
 ```
@@ -65,9 +32,20 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ---
 
+## Manual Setup
+
+If you prefer to set up the project manually, follow these steps:
+
+1.  **Install Dependencies:** `npm install`
+2.  **Environment Variables:** Copy `.env.example` to `.env` and fill in the `NEXTAUTH_SECRET`.
+3.  **Database Migration:** **This is critical.** Run `npx prisma migrate dev` to create the database and its tables.
+4.  **Run Server:** `npm run dev`
+
+---
+
 ## Available Scripts
 
 - `npm run dev`: Starts the development server.
 - `npm run build`: Creates a production-ready build of the application.
-- `npm run start`: Starts the production server (requires a build first).
-- `npx prisma studio`: Opens a web UI to view and edit the data in your database.
+- `npm run lint`: Lints the codebase for errors and style issues.
+- `npx prisma studio`: Opens a web UI to view and edit data.
