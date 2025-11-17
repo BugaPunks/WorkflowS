@@ -1,27 +1,22 @@
 import { PrismaClient } from "@prisma/client";
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
-type RouteContext = {
-  params: Promise<{
-    projectId: string;
-  }>;
-};
-
-// GET all sprints for a project
-export async function GET(req: NextRequest, context: RouteContext) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { projectId: string } }
+) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
   try {
-    const { projectId } = await context.params;
     const sprints = await prisma.sprint.findMany({
-      where: { projectId },
+      where: { projectId: params.projectId },
       orderBy: { startDate: "asc" },
       include: { stories: true },
     });
@@ -32,8 +27,10 @@ export async function GET(req: NextRequest, context: RouteContext) {
   }
 }
 
-// CREATE a new sprint in a project
-export async function POST(req: NextRequest, context: RouteContext) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { projectId: string } }
+) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return new NextResponse("Unauthorized", { status: 401 });
@@ -42,7 +39,6 @@ export async function POST(req: NextRequest, context: RouteContext) {
   try {
     const body = await req.json();
     const { name, startDate, endDate } = body;
-    const { projectId } = await context.params;
 
     if (!name || !startDate || !endDate) {
       return new NextResponse("Missing required fields", { status: 400 });
@@ -53,7 +49,7 @@ export async function POST(req: NextRequest, context: RouteContext) {
         name,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
-        projectId,
+        projectId: params.projectId,
       },
     });
 

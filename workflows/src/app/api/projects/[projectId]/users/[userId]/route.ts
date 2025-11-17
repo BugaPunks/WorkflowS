@@ -1,31 +1,25 @@
 import { PrismaClient } from "@prisma/client";
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
-type RouteContext = {
-  params: Promise<{
-    projectId: string;
-    userId: string;
-  }>;
-};
-
-// UPDATE a user's role in a project
-export async function PUT(req: NextRequest, context: RouteContext) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { projectId: string; userId: string } }
+) {
   const session = await getServerSession(authOptions);
   if (!session) return new NextResponse("Unauthorized", { status: 401 });
 
   try {
     const { role } = await req.json();
-    const { projectId, userId } = await context.params;
 
     const updatedProjectUser = await prisma.projectUser.update({
       where: {
         userId_projectId: {
-          userId,
-          projectId,
+          userId: params.userId,
+          projectId: params.projectId,
         },
       },
       data: { role },
@@ -38,19 +32,19 @@ export async function PUT(req: NextRequest, context: RouteContext) {
   }
 }
 
-// DELETE a user from a project
-export async function DELETE(req: NextRequest, context: RouteContext) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { projectId: string; userId: string } }
+) {
   const session = await getServerSession(authOptions);
   if (!session) return new NextResponse("Unauthorized", { status: 401 });
 
   try {
-    const { projectId, userId } = await context.params;
-
     await prisma.projectUser.delete({
       where: {
         userId_projectId: {
-          userId,
-          projectId,
+          userId: params.userId,
+          projectId: params.projectId,
         },
       },
     });

@@ -1,4 +1,4 @@
-import { RoleName, ScrumRole, UserStoryStatus } from "@prisma/client";
+import { RoleName, ScrumRole, UserStoryStatus, TaskStatus } from "@prisma/client";
 
 export interface User {
   id: string;
@@ -15,6 +15,14 @@ export interface ProjectUser {
   role: ScrumRole;
 }
 
+export interface Task {
+  id: string;
+  title: string;
+  description?: string | null;
+  status: TaskStatus;
+  assignedTo?: User | null;
+}
+
 export interface UserStory {
   id: string;
   title: string;
@@ -22,6 +30,16 @@ export interface UserStory {
   priority: number;
   status: UserStoryStatus;
   projectId: string;
+  sprintId?: string | null;
+  tasks?: Task[];
+}
+
+export interface Sprint {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  stories: UserStory[];
 }
 
 export interface Project {
@@ -32,4 +50,5 @@ export interface Project {
   endDate: string;
   users: ProjectUser[];
   stories: UserStory[];
+  sprints: Sprint[];
 }

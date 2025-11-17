@@ -1,18 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
-type RouteContext = {
-  params: Promise<{
-    storyId: string;
-  }>;
-};
-
-// CREATE a new task for a user story
-export async function POST(req: NextRequest, context: RouteContext) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { storyId: string } }
+) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return new NextResponse("Unauthorized", { status: 401 });
@@ -21,7 +17,6 @@ export async function POST(req: NextRequest, context: RouteContext) {
   try {
     const body = await req.json();
     const { title, description, assignedToId } = body;
-    const { storyId } = await context.params;
 
     if (!title) {
       return new NextResponse("Title is a required field", { status: 400 });
@@ -31,7 +26,7 @@ export async function POST(req: NextRequest, context: RouteContext) {
       data: {
         title,
         description,
-        userStoryId: storyId,
+        userStoryId: params.storyId,
         assignedToId,
       },
     });

@@ -1,27 +1,22 @@
 import { PrismaClient } from "@prisma/client";
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
-type RouteContext = {
-  params: Promise<{
-    projectId: string;
-  }>;
-};
-
-// GET all stories for a project
-export async function GET(req: NextRequest, context: RouteContext) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { projectId: string } }
+) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
   try {
-    const { projectId } = await context.params;
     const stories = await prisma.userStory.findMany({
-      where: { projectId },
+      where: { projectId: params.projectId },
       orderBy: { priority: "asc" },
     });
     return NextResponse.json(stories);
@@ -31,8 +26,10 @@ export async function GET(req: NextRequest, context: RouteContext) {
   }
 }
 
-// CREATE a new story in a project
-export async function POST(req: NextRequest, context: RouteContext) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { projectId: string } }
+) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return new NextResponse("Unauthorized", { status: 401 });
@@ -41,7 +38,6 @@ export async function POST(req: NextRequest, context: RouteContext) {
   try {
     const body = await req.json();
     const { title, description, priority } = body;
-    const { projectId } = await context.params;
 
     if (!title || !priority) {
       return new NextResponse("Missing required fields", { status: 400 });
@@ -52,7 +48,7 @@ export async function POST(req: NextRequest, context: RouteContext) {
         title,
         description,
         priority,
-        projectId,
+        projectId: params.projectId,
       },
     });
 

@@ -1,33 +1,26 @@
 import { PrismaClient } from "@prisma/client";
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
-// Explicitly define the context type as expected by the Next.js build process.
-// The key is that `params` is a Promise that resolves to the route parameters.
-type RouteContext = {
-  params: Promise<{
-    projectId: string;
-  }>;
-};
-
-export async function GET(req: NextRequest, context: RouteContext) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { projectId: string } }
+) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
   try {
-    // Await the promise to get the actual params
-    const { projectId } = await context.params;
-
     const project = await prisma.project.findUnique({
-      where: { id: projectId },
+      where: { id: params.projectId },
       include: {
         users: { include: { user: true } },
-        stories: true,
+        sprints: { include: { stories: { include: { tasks: { include: { assignedTo: true } } } } } },
+        stories: { include: { tasks: { include: { assignedTo: true } } } }
       },
     });
 
