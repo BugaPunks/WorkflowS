@@ -25,6 +25,15 @@ export interface Comment {
   author: { name?: string | null; };
 }
 
+export interface ProjectMinimal {
+  id: string;
+  name: string;
+}
+
+export interface UserStoryWithProject {
+  project: ProjectMinimal;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -32,7 +41,7 @@ export interface Task {
   status: TaskStatus;
   storyPoints?: number | null;
   assignedTo?: User | null;
-  userStory?: UserStory;
+  userStory?: UserStoryWithProject;
   comments?: Comment[];
 }
 

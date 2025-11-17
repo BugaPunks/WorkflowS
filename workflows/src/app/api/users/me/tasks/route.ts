@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
-// GET all tasks assigned to the current user
+// GET all tasks assigned to the current user with full context
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return new NextResponse("Unauthorized", { status: 401 });
@@ -17,12 +17,15 @@ export async function GET(req: NextRequest) {
       },
       include: {
         userStory: {
-          include: {
+          select: { // Use select for precision
             project: {
-              select: { id: true, name: true }
-            }
-          }
-        }
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
