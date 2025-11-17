@@ -21,6 +21,7 @@ export interface Task {
   description?: string | null;
   status: TaskStatus;
   assignedTo?: User | null;
+  userStory?: UserStory; // Added for context in StudentDashboard
 }
 
 export interface UserStory {
@@ -32,6 +33,7 @@ export interface UserStory {
   projectId: string;
   sprintId?: string | null;
   tasks?: Task[];
+  project?: Project; // Added for context in StudentDashboard
 }
 
 export interface Sprint {
@@ -40,6 +42,14 @@ export interface Sprint {
   startDate: string;
   endDate: string;
   stories: UserStory[];
+}
+
+export interface Evaluation {
+  id: string;
+  score: number;
+  feedback?: string | null;
+  student: { id: string; name: string | null };
+  sprint: { id: string; name: string };
 }
 
 export interface Project {
@@ -51,4 +61,5 @@ export interface Project {
   users: ProjectUser[];
   stories: UserStory[];
   sprints: Sprint[];
+  evaluations?: Evaluation[];
 }

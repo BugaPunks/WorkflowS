@@ -7,6 +7,8 @@ datasource db {
   url      = "file:./dev.db"
 }
 
+// Enums remain the same
+
 enum RoleName {
   ADMIN
   DOCENTE
@@ -32,28 +34,32 @@ enum TaskStatus {
 }
 
 model User {
-  id        String      @id @default(cuid())
-  email     String      @unique
-  name      String?
-  password  String
-  role      RoleName    @default(ESTUDIANTE)
-  projects  ProjectUser[]
-  tasks     Task[]      @relation("AssignedTasks")
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id                  String        @id @default(cuid())
+  email               String        @unique
+  name                String?
+  password            String
+  role                RoleName      @default(ESTUDIANTE)
+  projects            ProjectUser[]
+  tasks               Task[]        @relation("AssignedTasks")
+  evaluationsAsStudent Evaluation[]  @relation("EvaluatedUser")
+  evaluationsAsAuthor  Evaluation[]  @relation("AuthoredEvaluations")
+  notifications       Notification[]
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
 }
 
 model Project {
-  id          String      @id @default(cuid())
-  name        String
-  description String?
-  startDate   DateTime
-  endDate     DateTime
-  users       ProjectUser[]
-  stories     UserStory[]
-  sprints     Sprint[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id           String       @id @default(cuid())
+  name         String
+  description  String?
+  startDate    DateTime
+  endDate      DateTime
+  users        ProjectUser[]
+  stories      UserStory[]
+  sprints      Sprint[]
+  evaluations  Evaluation[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 }
 
 model ProjectUser {
@@ -67,15 +73,16 @@ model ProjectUser {
 }
 
 model Sprint {
-  id        String      @id @default(cuid())
-  name      String
-  startDate DateTime
-  endDate   DateTime
-  project   Project     @relation(fields: [projectId], references: [id])
-  projectId String
-  stories   UserStory[]
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id          String       @id @default(cuid())
+  name        String
+  startDate   DateTime
+  endDate     DateTime
+  project     Project      @relation(fields: [projectId], references: [id])
+  projectId   String
+  stories     UserStory[]
+  evaluations Evaluation[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
 
 model UserStory {
@@ -97,6 +104,7 @@ model Task {
   id           String     @id @default(cuid())
   title        String
   description  String?
+  storyPoints  Int?
   status       TaskStatus @default(PENDING)
   userStory    UserStory  @relation(fields: [userStoryId], references: [id])
   userStoryId  String
@@ -104,4 +112,30 @@ model Task {
   assignedToId String?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+}
+
+model Evaluation {
+  id          String   @id @default(cuid())
+  score       Float
+  feedback    String?
+  project     Project  @relation(fields: [projectId], references: [id])
+  projectId   String
+  sprint      Sprint   @relation(fields: [sprintId], references: [id])
+  sprintId    String
+  student     User     @relation("EvaluatedUser", fields: [studentId], references: [id])
+  studentId   String
+  evaluator   User     @relation("AuthoredEvaluations", fields: [evaluatorId], references: [id])
+  evaluatorId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  message   String
+  read      Boolean  @default(false)
+  link      String?
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
 }
