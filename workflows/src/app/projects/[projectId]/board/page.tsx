@@ -84,7 +84,7 @@ export default function BoardPage() {
         <TaskDetailsModal
           task={selectedTask}
           onClose={() => setSelectedTask(null)}
-          onCommentAdded={fetchProject} // Refetch all data when a comment is added
+          onUpdate={fetchProject} // Refetch all data when a comment is added
         />
       )}
     </>

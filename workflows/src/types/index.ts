@@ -51,6 +51,7 @@ export interface UserStory {
   description?: string | null;
   priority: number;
   status: UserStoryStatus;
+  acceptanceCriteria?: string | null;
   projectId: string;
   sprintId?: string | null;
   tasks?: Task[];
@@ -88,7 +89,7 @@ export interface Project {
   startDate: string;
   endDate: string;
   users: ProjectUser[];
-  stories: UserStory[];
+  userStories: UserStory[];
   sprints: Sprint[];
   documents: Document[];
   evaluations?: Evaluation[];
