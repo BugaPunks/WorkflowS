@@ -1,3 +1,26 @@
+# Codificación de la Iteración 1: Gestión de Equipos y Roles
+
+## Creación de Usuarios
+
+La creación de usuarios se gestiona a través de una ruta de API que recibe una solicitud POST.
+
+### `POST /api/users`
+
+Esta función maneja la creación de un nuevo usuario en la base de datos.
+
+- **Propósito:** Registrar un nuevo usuario en el sistema.
+- **Parámetros:**
+  - `req`: El objeto de solicitud, que contiene en el cuerpo:
+    - `email` (string): El correo electrónico del usuario.
+    - `name` (string): El nombre del usuario.
+    - `password` (string): La contraseña del usuario.
+    - `role` (RoleName): El rol del usuario en la plataforma.
+- **Retorno:** Un objeto `NextResponse` con el usuario creado en formato JSON o un mensaje de error.
+
+#### Código de Ejemplo
+
+```typescript
+// workflows/src/app/api/users/route.ts
 
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
@@ -69,3 +92,4 @@ export async function POST(req: Request) {
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
+```

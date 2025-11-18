@@ -4,8 +4,45 @@ import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-
-// UPDATE a sprint
+/**
+ * @swagger
+ * /api/sprints/{sprintId}:
+ *   put:
+ *     summary: Updates a sprint
+ *     description: Updates a sprint with the provided name, start date, and end date.
+ *     parameters:
+ *       - in: path
+ *         name: sprintId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               startDate:
+ *                 type: string
+ *                 format: date-time
+ *               endDate:
+ *                 type: string
+ *                 format: date-time
+ *     responses:
+ *       '200':
+ *         description: Sprint updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Sprint'
+ *       '401':
+ *         description: Unauthorized
+ *       '500':
+ *         description: Internal server error
+ */
 export async function PUT(req: NextRequest, { params }: { params: { sprintId: string } }) {
   const session = await getServerSession(authOptions);
   if (!session) return new NextResponse("Unauthorized", { status: 401 });
@@ -23,7 +60,26 @@ export async function PUT(req: NextRequest, { params }: { params: { sprintId: st
   }
 }
 
-// DELETE a sprint
+/**
+ * @swagger
+ * /api/sprints/{sprintId}:
+ *   delete:
+ *     summary: Deletes a sprint
+ *     description: Deletes a sprint with the provided ID.
+ *     parameters:
+ *       - in: path
+ *         name: sprintId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '204':
+ *         description: Sprint deleted successfully
+ *       '401':
+ *         description: Unauthorized
+ *       '500':
+ *         description: Internal server error
+ */
 export async function DELETE(req: NextRequest, { params }: { params: { sprintId: string } }) {
   const session = await getServerSession(authOptions);
   if (!session) return new NextResponse("Unauthorized", { status: 401 });

@@ -1,37 +1,43 @@
+# Codificación de la Iteración 4: Evaluación y Calificación
+
+## Creación y Gestión de Evaluaciones
+
+La creación y gestión of evaluaciones se maneja a través de varias rutas de API.
+
+### `GET /api/projects/{projectId}/evaluations`
+
+Esta función maneja la obtención de todas las evaluaciones de un proyecto.
+
+- **Propósito:** Obtener una lista de todas las evaluaciones de un proyecto. Si el usuario es un estudiante, solo devuelve sus evaluaciones.
+- **Parámetros:**
+  - `req`: El objeto de solicitud.
+  - `params`: Contiene el `projectId`.
+- **Retorno:** Un objeto `NextResponse` con la lista de evaluaciones en formato JSON o un mensaje de error.
+
+### `POST /api/projects/{projectId}/evaluations`
+
+Esta función maneja la creación de una nueva evaluación en un proyecto.
+
+- **Propósito:** Registrar un nueva evaluación en un proyecto.
+- **Parámetros:**
+  - `req`: El objeto de solicitud, que contiene en el cuerpo:
+    - `sprintId` (string): El ID del sprint.
+    - `studentId` (string): El ID del estudiante.
+    - `score` (number): La calificación.
+    - `feedback` (string): La retroalimentación.
+- **Retorno:** Un objeto `NextResponse` con la evaluación creada en formato JSON o un mensaje de error.
+
+#### Código de Ejemplo
+
+```typescript
+// workflows/src/app/api/projects/[projectId]/evaluations/route.ts
 
 import prisma from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-/**
- * @swagger
- * /api/projects/{projectId}/evaluations:
- *   get:
- *     summary: Gets all evaluations for a project
- *     description: Retrieves a list of all evaluations associated with a specific project. If the user is a student, it only returns their evaluations.
- *     parameters:
- *       - in: path
- *         name: projectId
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       '200':
- *         description: A list of evaluations
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Evaluation'
- *       '401':
- *         description: Unauthorized
- *       '500':
- *         description: Internal server error
- */
 export async function GET(req: NextRequest, { params }: { params: { projectId: string } }) {
-  // ... (existing GET logic)
   const session = await getServerSession(authOptions);
   if (!session) return new NextResponse("Unauthorized", { status: 401 });
 
@@ -56,47 +62,6 @@ export async function GET(req: NextRequest, { params }: { params: { projectId: s
   }
 }
 
-/**
- * @swagger
- * /api/projects/{projectId}/evaluations:
- *   post:
- *     summary: Creates a new evaluation
- *     description: Creates a new evaluation for a student in a sprint with the provided score and feedback.
- *     parameters:
- *       - in: path
- *         name: projectId
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               sprintId:
- *                 type: string
- *               studentId:
- *                 type: string
- *               score:
- *                 type: number
- *               feedback:
- *                 type: string
- *     responses:
- *       '200':
- *         description: Evaluation created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Evaluation'
- *       '400':
- *         description: Bad request, missing required fields
- *       '403':
- *         description: Forbidden, only teachers can create evaluations
- *       '500':
- *         description: Internal server error
- */
 export async function POST(req: NextRequest, { params }: { params: { projectId: string } }) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "DOCENTE") {
@@ -137,3 +102,4 @@ export async function POST(req: NextRequest, { params }: { params: { projectId: 
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
+```

@@ -1,3 +1,24 @@
+# Codificación de la Iteración 5: Dashboard y Métricas
+
+## Dashboard Basado in Roles
+
+El dashboard se renderiza de forma dinámica según el rol de Scrum del usuario en el proyecto.
+
+### `RoleBasedDashboard.tsx`
+
+Este componente es el punto de entrada para el dashboard. Obtiene el rol de Scrum del usuario y renderiza el dashboard correspondiente.
+
+- **Propósito:** Mostrar un dashboard personalizado según el rol del usuario.
+- **Componentes Anidados:**
+  - `DashboardScrumMaster`: Dashboard para el rol de Scrum Master.
+  - `DashboardProductOwner`: Dashboard para el rol de Product Owner.
+  - `DashboardTeamDeveloper`: Dashboard para el rol de Team Developer.
+
+#### Código de Ejemplo
+
+```typescript
+// workflows/src/app/components/RoleBasedDashboard.tsx
+
 'use client';
 
 import { useSession } from "next-auth/react";
@@ -9,11 +30,6 @@ import DashboardTeamDeveloper from "./DashboardTeamDeveloper";
 
 type ScrumRole = 'SCRUM_MASTER' | 'PRODUCT_OWNER' | 'TEAM_DEVELOPER';
 
-/**
- * A component that renders a dashboard based on the user's Scrum role in a project.
- * It fetches the user's Scrum role and then renders the appropriate dashboard component.
- * @returns {JSX.Element} The role-based dashboard component.
- */
 export default function RoleBasedDashboard() {
   const { data: session } = useSession();
   const params = useParams();
@@ -27,9 +43,6 @@ export default function RoleBasedDashboard() {
     fetchScrumRole();
   }, [projectId, session]);
 
-  /**
-   * Fetches the user's Scrum role for the current project.
-   */
   const fetchScrumRole = async () => {
     if (!session?.user?.id || !projectId) {
       setLoading(false);
@@ -110,3 +123,4 @@ export default function RoleBasedDashboard() {
       );
   }
 }
+```
