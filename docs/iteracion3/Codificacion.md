@@ -36,95 +36,38 @@ Esta función maneja la eliminación de una tarea.
   - `params`: Contiene el `taskId`.
 - **Retorno:** Un objeto `NextResponse` con un estado 204 si la eliminación fue exitosa, o un mensaje de error.
 
-#### Código de Ejemplo
+#### Creación de una Tarea
+Este fragmento de código muestra cómo se crea una nueva tarea en la base de datos, asociándola a una historia de usuario.
 
 ```typescript
 // workflows/src/app/api/stories/[storyId]/tasks/route.ts
+const task = await prisma.task.create({
+  data: {
+    title,
+    description,
+    userStoryId: params.storyId,
+    assignedToId,
+  },
+});
 
-import prisma from "@/lib/prisma";
-import { NextResponse, NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { storyId: string } }
-) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
-
-  try {
-    const body = await req.json();
-    const { title, description, assignedToId } = body;
-
-    if (!title) {
-      return new NextResponse("Title is a required field", { status: 400 });
-    }
-
-    const task = await prisma.task.create({
-      data: {
-        title,
-        description,
-        userStoryId: params.storyId,
-        assignedToId,
-      },
-    });
-
-    return NextResponse.json(task);
-  } catch (error) {
-    return new NextResponse("Internal Server Error", { status: 500 });
-  }
-}
+return NextResponse.json(task);
 ```
+
+#### Actualización de una Tarea
+Este fragmento de código muestra cómo se actualiza una tarea en la base de datos con los nuevos datos proporcionados.
 
 ```typescript
 // workflows/src/app/api/tasks/[taskId]/route.ts
+const updatedTask = await prisma.task.update({
+  where: { id: params.taskId },
+  data: {
+    title,
+    description,
+    storyPoints,
+    status,
+    assignedToId,
+  },
+});
 
-import { NextResponse, NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import prisma from "@/lib/prisma";
-
-export async function PUT(req: NextRequest, { params }: { params: { taskId: string } }) {
-  const session = await getServerSession(authOptions);
-  if (!session) return new NextResponse("Unauthorized", { status: 401 });
-
-  try {
-    const body = await req.json();
-    const { title, description, storyPoints, status, assignedToId } = body;
-
-    const updatedTask = await prisma.task.update({
-      where: { id: params.taskId },
-      data: {
-        title,
-        description,
-        storyPoints,
-        status,
-        assignedToId,
-      },
-    });
-
-    return NextResponse.json(updatedTask);
-  } catch (error) {
-    return new NextResponse("Internal Server Error", { status: 500 });
-  }
-}
-
-export async function DELETE(req: NextRequest, { params }: { params: { taskId: string } }) {
-  const session = await getServerSession(authOptions);
-  if (!session) return new NextResponse("Unauthorized", { status: 401 });
-
-  try {
-    // Delete related comments and documents first
-    await prisma.comment.deleteMany({ where: { taskId: params.taskId } });
-    await prisma.document.deleteMany({ where: { taskId: params.taskId } });
-
-    await prisma.task.delete({ where: { id: params.taskId } });
-    return new NextResponse(null, { status: 204 });
-  } catch (error) {
-    return new NextResponse("Internal Server Error", { status: 500 });
-  }
-}
+return NextResponse.json(updatedTask);
 ```

@@ -46,110 +46,34 @@ Esta función maneja la eliminación de un sprint.
   - `params`: Contiene el `sprintId`.
 - **Retorno:** Un objeto `NextResponse` con un estado 204 si la eliminación fue exitosa, o un mensaje de error.
 
-#### Código de Ejemplo
+#### Creación de un Sprint
+Este fragmento de código muestra cómo se crea un nuevo sprint en la base de datos con los datos proporcionados.
 
 ```typescript
 // workflows/src/app/api/projects/[projectId]/sprints/route.ts
+const sprint = await prisma.sprint.create({
+  data: {
+    name,
+    startDate: new Date(startDate),
+    endDate: new Date(endDate),
+    projectId: params.projectId,
+  },
+});
 
-import prisma from "@/lib/prisma";
-import { NextResponse, NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { projectId: string } }
-) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
-
-  try {
-    const sprints = await prisma.sprint.findMany({
-      where: { projectId: params.projectId },
-      orderBy: { startDate: "asc" },
-      include: { stories: true },
-    });
-    return NextResponse.json(sprints);
-  } catch (error) {
-    return new NextResponse("Internal Server Error", { status: 500 });
-  }
-}
-
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { projectId: string } }
-) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
-
-  try {
-    const body = await req.json();
-    const { name, startDate, endDate } = body;
-
-    if (!name || !startDate || !endDate) {
-      return new NextResponse("Missing required fields", { status: 400 });
-    }
-
-    const sprint = await prisma.sprint.create({
-      data: {
-        name,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        projectId: params.projectId,
-      },
-    });
-
-    return NextResponse.json(sprint);
-  } catch (error) {
-    return new NextResponse("Internal Server Error", { status: 500 });
-  }
-}
+return NextResponse.json(sprint);
 ```
+
+#### Eliminación de un Sprint
+Este fragmento de código muestra cómo se eliminan las referencias de las historias de usuario a un sprint antes de eliminar el sprint en sí.
 
 ```typescript
 // workflows/src/app/api/sprints/[sprintId]/route.ts
+await prisma.userStory.updateMany({
+  where: { sprintId: params.sprintId },
+  data: { sprintId: null },
+});
 
-import prisma from "@/lib/prisma";
-import { NextResponse, NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+await prisma.sprint.delete({ where: { id: params.sprintId } });
 
-export async function PUT(req: NextRequest, { params }: { params: { sprintId: string } }) {
-  const session = await getServerSession(authOptions);
-  if (!session) return new NextResponse("Unauthorized", { status: 401 });
-
-  try {
-    const body = await req.json();
-    const { name, startDate, endDate } = body;
-    const updatedSprint = await prisma.sprint.update({
-      where: { id: params.sprintId },
-      data: { name, startDate: new Date(startDate), endDate: new Date(endDate) },
-    });
-    return NextResponse.json(updatedSprint);
-  } catch (error) {
-    return new NextResponse("Internal Server Error", { status: 500 });
-  }
-}
-
-export async function DELETE(req: NextRequest, { params }: { params: { sprintId: string } }) {
-  const session = await getServerSession(authOptions);
-  if (!session) return new NextResponse("Unauthorized", { status: 401 });
-
-  try {
-    // Unassign stories from this sprint before deleting
-    await prisma.userStory.updateMany({
-      where: { sprintId: params.sprintId },
-      data: { sprintId: null },
-    });
-
-    await prisma.sprint.delete({ where: { id: params.sprintId } });
-    return new NextResponse(null, { status: 204 });
-  } catch (error) {
-    return new NextResponse("Internal Server Error", { status: 500 });
-  }
-}
+return new NextResponse(null, { status: 204 });
 ```
