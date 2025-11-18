@@ -46,6 +46,13 @@ describe('Dashboard API Endpoints', () => {
         { status: 'COMPLETED', assignedToId: 'user-1' },
         { status: 'PENDING', assignedToId: 'user-1' },
       ];
+const { GET: getTeamMetrics } = require('@/app/api/projects/[projectId]/team/metrics/route');
+const { GET: getBlockers } = require('@/app/api/projects/[projectId]/blockers/route');
+const { GET: getStoriesBacklog } = require('@/app/api/projects/[projectId]/stories/backlog/route');
+const { GET: getStoriesMetrics } = require('@/app/api/projects/[projectId]/stories/metrics/route');
+const { GET: getMyTasks } = require('@/app/api/projects/[projectId]/tasks/my-tasks/route');
+const { GET: getMyMetrics } = require('@/app/api/projects/[projectId]/tasks/my-metrics/route');
+
       prisma.task.findMany.mockResolvedValue(mockTasks);
 
       const request = new NextRequest('http://localhost/api/projects/project-1/team/metrics');
@@ -183,12 +190,12 @@ describe('Dashboard API Endpoints', () => {
         { status: 'IN_PROGRESS' },
         { status: 'PENDING' },
       ];
-      prisma.task.findMany.mockResolvedValue(mockTasks);
+      (prisma.task.findMany as jest.Mock).mockResolvedValue(mockTasks);
 
       const mockCurrentSprint = { id: 'sprint-1' };
-      prisma.sprint.findFirst.mockResolvedValue(mockCurrentSprint);
+      (prisma.sprint.findFirst as jest.Mock).mockResolvedValue(mockCurrentSprint);
 
-      prisma.task.count.mockResolvedValue(2);
+      (prisma.task.count as jest.Mock).mockResolvedValue(2);
 
       const request = new NextRequest('http://localhost/api/projects/project-1/tasks/my-metrics');
       const response = await getMyMetrics(request, { params: { projectId: 'project-1' } });

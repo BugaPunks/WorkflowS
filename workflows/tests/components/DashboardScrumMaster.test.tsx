@@ -11,9 +11,13 @@ describe('DashboardScrumMaster', () => {
     jest.clearAllMocks();
   });
 
-  it('debe mostrar el título del dashboard', () => {
+  it('debe mostrar el título del dashboard', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([]),
+    });
     render(<DashboardScrumMaster projectId="test-project-id" />);
-    expect(screen.getByText('Dashboard Scrum Master')).toBeInTheDocument();
+    expect(await screen.findByText('Dashboard Scrum Master')).toBeInTheDocument();
   });
 
   it('debe mostrar mensaje de carga inicialmente', () => {
@@ -33,6 +37,18 @@ describe('DashboardScrumMaster', () => {
 
     expect(screen.getByText('Dashboard Scrum Master')).toBeInTheDocument();
   });
+
+  it('debe mostrar métricas de sprints, velocidad y bloqueos', async () => {
+    const mockSprints = [{ id: 'sprint1', name: 'Sprint 1', progress: 50 }];
+    const mockTeam = [{ member: 'John Doe', velocity: 5 }];
+    const mockBlockers = [{ id: 'blocker1', description: 'Test Blocker' }];
+
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/sprints/metrics')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockSprints)
+        });
       }
       if (url.includes('/team/metrics')) {
         return Promise.resolve({

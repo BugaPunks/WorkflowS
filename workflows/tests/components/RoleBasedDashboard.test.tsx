@@ -32,10 +32,12 @@ describe('RoleBasedDashboard', () => {
   });
 
   it('debe mostrar mensaje de carga inicialmente', async () => {
-    await act(async () => {
-      render(<RoleBasedDashboard />);
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => new Promise(() => {}), // Never resolves to keep it in loading state
     });
-    expect(screen.getByText('Cargando dashboard...')).toBeInTheDocument();
+    render(<RoleBasedDashboard />);
+    expect(await screen.findByText('Cargando dashboard...')).toBeInTheDocument();
   });
 
   it('debe mostrar error cuando el usuario no es miembro del proyecto', async () => {
@@ -54,40 +56,50 @@ describe('RoleBasedDashboard', () => {
   it('debe mostrar DashboardScrumMaster para rol SCRUM_MASTER', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ scrumRole: 'SCRUM_MASTER' })
+      json: () => Promise.resolve({ scrumRole: 'SCRUM_MASTER' }),
     });
 
-    await act(async () => {
-      render(<RoleBasedDashboard />);
+    render(<RoleBasedDashboard />);
+
+    // Need to mock the fetch calls inside the dashboard components
+    mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve([]),
     });
 
-    expect(screen.getByText('Dashboard Scrum Master')).toBeInTheDocument();
+    expect(await screen.findByText('Dashboard Scrum Master')).toBeInTheDocument();
   });
 
   it('debe mostrar DashboardProductOwner para rol PRODUCT_OWNER', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ scrumRole: 'PRODUCT_OWNER' })
+      json: () => Promise.resolve({ scrumRole: 'PRODUCT_OWNER' }),
     });
 
-    await act(async () => {
-      render(<RoleBasedDashboard />);
+    render(<RoleBasedDashboard />);
+
+    mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve([]),
     });
 
-    expect(screen.getByText('Dashboard Product Owner')).toBeInTheDocument();
+    expect(await screen.findByText('Dashboard Product Owner')).toBeInTheDocument();
   });
 
-  it('debe mostrar DashboardTeamDeveloper para rol TEAM_DEVELOPER', async () => {
+  it('debe mostrar DashboardTeamDeveloper para rol TEAM_DEVELOPer', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ scrumRole: 'TEAM_DEVELOPER' })
+      json: () => Promise.resolve({ scrumRole: 'TEAM_DEVELOPER' }),
     });
 
-    await act(async () => {
-      render(<RoleBasedDashboard />);
+    render(<RoleBasedDashboard />);
+
+    mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve([]),
     });
 
-    expect(screen.getByText('Dashboard Team Developer')).toBeInTheDocument();
+    expect(await screen.findByText('Dashboard Team Developer')).toBeInTheDocument();
   });
 
   it('debe mostrar mensaje de rol no asignado', async () => {
