@@ -2,21 +2,23 @@
 
 ## Pruebas
 
-### Validación de la Creación de Sprints
-Se realizaron pruebas manuales para verificar que los Sprints se crean correctamente y se asocian al proyecto correcto.
+### Validación de la Creación y Gestión de Sprints y Backlogs
+Se realizaron pruebas unitarias y de integración para verificar la correcta implementación de la funcionalidad de Sprints y Backlogs.
 
-*   **Resultados:** No se encontraron errores críticos.
+**Tests Relevantes:**
+A continuación se detallan los archivos de prueba correspondientes a esta iteración:
 
-### Probar la Asignación de Tareas
-Se probó manualmente el flujo de creación y asignación de tareas.
+*   **`tests/api/sprints.test.ts`**: Valida el CRUD de Sprints.
+*   **`tests/api/projects-sprints.test.ts`**: Prueba la creación y obtención de Sprints dentro de un proyecto.
+*   **`tests/api/stories.test.ts`**: Valida el CRUD de historias de usuario.
+*   **`tests/api/stories-tasks.test.ts`**: Prueba la creación y obtención de tareas asociadas a una historia de usuario.
+*   **`tests/api/tasks.test.ts`**: Valida el CRUD de tareas.
 
-*   **Resultados:** Se identificó un error menor en la actualización de la interfaz de usuario después de asignar una tarea, el cual fue corregido.
+### Verificación Manual
+Se probó manualmente el flujo de creación de un Sprint, la adición de historias de usuario al backlog y la creación de tareas para esas historias.
 
-### Verificar la Consistencia del Backlog
-Se realizaron pruebas para asegurar que la priorización de historias de usuario funciona como se espera y que los datos se mantienen consistentes.
-
-*   **Estado:** Realizadas manualmente. Se planea añadir pruebas automatizadas en futuras iteraciones.
+*   **Resultados:** Se identificó y corrigió un error menor en la actualización de la interfaz de usuario después de asignar una tarea.
 
 ### Entregables
-- **Reporte de Pruebas:** Documento informal con los resultados de las pruebas manuales.
+- **Reporte de Pruebas:** Los resultados de las pruebas se generan al ejecutar `npm test`.
 - **Correcciones Implementadas:** Las correcciones se encuentran en el historial de commits.

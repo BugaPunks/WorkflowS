@@ -2,21 +2,19 @@
 
 ## Pruebas
 
-### Validar el Cálculo de Calificaciones
-Se escribieron pruebas unitarias para la función `calculateAverageGrade` y otras funciones de utilidad relacionadas con el cálculo de calificaciones.
+### Validación del Sistema de Evaluación
+Se escribieron pruebas de integración para el endpoint de la API de evaluaciones para asegurar su correcto funcionamiento.
 
-*   **Resultados:** Todas las pruebas unitarias pasaron con éxito.
+**Tests Relevantes:**
+A continuación se detalla el archivo de prueba correspondiente a esta iteración:
 
-### Probar el Envío de Retroalimentación
-Se realizaron pruebas manuales para verificar que la retroalimentación se guarda y se muestra correctamente a los estudiantes.
+*   **`tests/api/evaluations.test.ts`**: Valida la creación, obtención, actualización y eliminación de evaluaciones.
 
-*   **Resultados:** No se encontraron errores.
+### Verificación Manual
+Se probó manualmente el flujo completo de creación de una evaluación, asignación de calificaciones y envío de retroalimentación a los estudiantes.
 
-### Verificar la Integridad de los Datos
-Se realizaron pruebas para asegurar que las calificaciones y la retroalimentación se asocian correctamente con los estudiantes y las evaluaciones correspondientes.
-
-*   **Estado:** Realizadas manualmente. Se planea añadir pruebas de integración automatizadas en el futuro.
+*   **Resultados:** No se encontraron errores críticos.
 
 ### Entregables
-- **Reporte de Pruebas:** Los resultados de las pruebas unitarias se generan con `npm test`.
-- **Correcciones Implementadas:** No se encontraron errores que requirieran correcciones en esta iteración.
+- **Reporte de Pruebas:** Los resultados de las pruebas se generan al ejecutar `npm test`.
+- **Correcciones Implementadas:** No se requirieron correcciones mayores en esta iteración.

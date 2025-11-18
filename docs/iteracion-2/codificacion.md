@@ -2,37 +2,21 @@
 
 ## Codificación
 
-### Implementación de la Creación y Gestión de Sprints
-Se desarrollaron los endpoints de la API y los componentes de la interfaz de usuario para gestionar los Sprints.
+### Implementación de la Gestión de Sprints y Backlogs
+Se desarrollaron los endpoints de la API y los componentes de la interfaz de usuario para gestionar los Sprints, el Product Backlog (historias de usuario) y las tareas.
 
-*   **Estado:** Implementado.
+**Archivos de la API Relevantes:**
+A continuación se detallan los archivos de la API correspondientes a esta iteración:
 
-### Desarrollo del Sistema de Backlog
-Se implementó la funcionalidad para crear, modificar y priorizar historias de usuario en el Product Backlog.
-
-**Snippet de Código Relevante:**
-A continuación, se muestra la función para actualizar la prioridad de una historia de usuario.
-
-*   **Título:** `updateStoryPriority`
-*   **Nota:** Esta función recibe el ID de la historia y la nueva prioridad, y actualiza el registro en la base de datos.
-
-```typescript
-// src/actions/story-actions.ts
-
-export async function updateStoryPriority(id: string, priority: number) {
-  await prisma.story.update({
-    where: { id },
-    data: { priority },
-  });
-  // ...
-}
-```
-
-### Programación de la Asignación de Tareas
-Se implementó la funcionalidad para que los miembros del equipo puedan crear tareas y asignarlas a otros miembros.
-
-*   **Estado:** Implementado. La funcionalidad de arrastrar y soltar en el tablero Kanban está pendiente.
+*   **`src/app/api/sprints/route.ts`**: Gestiona la creación de Sprints.
+*   **`src/app/api/sprints/[sprintId]/route.ts`**: Gestiona la obtención, actualización y eliminación de un Sprint específico.
+*   **`src/app/api/projects/[projectId]/sprints/route.ts`**: Gestiona los Sprints dentro de un proyecto.
+*   **`src/app/api/stories/route.ts`**: Gestiona la creación de historias de usuario.
+*   **`src/app/api/stories/[storyId]/route.ts`**: Gestiona la obtención, actualización y eliminación de una historia de usuario.
+*   **`src/app/api/stories/[storyId]/tasks/route.ts`**: Gestiona las tareas de una historia de usuario.
+*   **`src/app/api/tasks/route.ts`**: Gestiona la creación de tareas.
+*   **`src/app/api/tasks/[taskId]/route.ts`**: Gestiona la obtención, actualización y eliminación de una tarea.
 
 ### Entregables
 - **Código Fuente Comentado:** El código se encuentra en el directorio `src/`.
-- **Módulo de Sprints Funcional:** La creación y gestión de Sprints y el Backlog están operativos.
+- **Módulo de Sprints Funcional:** La creación y gestión de Sprints, el Backlog y las tareas están operativos.

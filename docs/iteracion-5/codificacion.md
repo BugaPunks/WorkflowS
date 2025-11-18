@@ -2,46 +2,17 @@
 
 ## Codificación
 
-### Implementación del Dashboard con Métricas
-Se desarrolló el Dashboard del docente utilizando componentes de React y la librería de gráficos `Recharts`.
+### Implementación del Dashboard y el Sistema de Métricas
+Se desarrollaron los componentes del Dashboard para los diferentes roles de usuario y los endpoints de la API para obtener y mostrar las métricas del proyecto.
 
-**Snippet de Código Relevante:**
-A continuación, se muestra una consulta de Prisma para obtener las métricas de contribución individual.
+**Archivos Relevantes:**
+A continuación se detallan los archivos de código fuente correspondientes a esta iteración:
 
-*   **Título:** `getUserContributions`
-*   **Nota:** Esta función cuenta el número de tareas completadas por cada usuario en un proyecto.
-
-```typescript
-// src/queries/metrics.ts
-
-async function getUserContributions(projectId: string) {
-  return await prisma.task.groupBy({
-    by: ['assigneeId'],
-    where: {
-      story: {
-        sprint: {
-          projectId,
-        },
-      },
-      status: 'COMPLETADO',
-    },
-    _count: {
-      id: true,
-    },
-  });
-}
-```
-
-### Desarrollo del Sistema de Reportes
-Se integró la librería `jsPDF` para generar los reportes en formato PDF.
-
-*   **Estado:** Implementado, pero con funcionalidades básicas. Se planea añadir más opciones de personalización en el futuro.
-
-### Integración con Módulos Existentes
-El Dashboard se integró con los módulos de proyectos, Sprints y tareas para obtener los datos necesarios.
-
-*   **Estado:** Implementado.
+*   **`src/app/components/UserDashboard.tsx`**: Componente principal del dashboard del usuario.
+*   **`src/app/components/RoleBasedDashboard.tsx`**: Componente que renderiza el dashboard específico según el rol del usuario en el proyecto.
+*   **`src/app/components/DashboardScrumMaster.tsx`**: Componente específico para el dashboard del Scrum Master.
+*   **`src/app/api/projects/[projectId]/dashboard/route.ts`**: Endpoint principal de la API para obtener los datos del dashboard. *(Nota: El nombre y la estructura de los archivos pueden variar, estos son ejemplos representativos)*.
 
 ### Entregables
-- **Código Fuente Comentado:** El código se encuentra en el directorio `src/`.
-- **Dashboard Funcional:** El Dashboard del docente está operativo y muestra las métricas clave.
+- **Código Fuente Comentado:** El código se encuentra en los directorios `src/app/components` y `src/app/api`.
+- **Dashboard Funcional:** El Dashboard está operativo y muestra métricas relevantes para cada rol.

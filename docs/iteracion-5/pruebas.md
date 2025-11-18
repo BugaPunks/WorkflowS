@@ -2,21 +2,23 @@
 
 ## Pruebas
 
-### Validar la Visualización de Datos
-Se realizaron pruebas manuales para verificar que los datos que se muestran en el Dashboard son correctos y se actualizan en tiempo real.
+### Validación del Dashboard y las Métricas
+Se escribieron pruebas de frontend y de integración de la API para asegurar la correcta visualización y obtención de datos en el Dashboard.
+
+**Tests Relevantes:**
+A continuación se detallan los archivos de prueba correspondientes a esta iteración:
+
+*   **`tests/components/UserDashboard.test.tsx`**: Prueba el componente principal del dashboard.
+*   **`tests/components/RoleBasedDashboard.test.tsx`**: Valida que se renderice el dashboard correcto según el rol del usuario.
+*   **`tests/components/DashboardScrumMaster.test.tsx`**: Prueba los componentes específicos del dashboard del Scrum Master.
+*   **`tests/api/dashboard-endpoints.test.ts`**: Prueba varios endpoints relacionados con el dashboard.
+*   **`tests/api/projects-dashboard-api.test.ts`**: Contiene pruebas exhaustivas para los endpoints de la API del dashboard de un proyecto.
+
+### Verificación Manual
+Se probó manualmente la visualización de datos en el Dashboard para diferentes roles de usuario, asegurando que las métricas mostradas fueran correctas y se actualizaran en tiempo real.
 
 *   **Resultados:** No se encontraron errores críticos.
 
-### Probar la Generación de Reportes
-Se probó la funcionalidad de generación de reportes en PDF.
-
-*   **Resultados:** Los reportes se generan correctamente, pero se identificaron algunas mejoras de formato que se implementarán en el futuro.
-
-### Verificar el Rendimiento del Sistema
-Se realizaron pruebas de carga básicas para asegurar que el Dashboard no afecta negativamente el rendimiento de la aplicación.
-
-*   **Estado:** El rendimiento es aceptable, pero se recomienda optimizar las consultas a la base de datos en futuras iteraciones.
-
 ### Entregables
-- **Reporte Final de Pruebas:** Documento informal con los resultados de las pruebas.
-- **Documento de Cierre de Proyecto:** Este documento resume los resultados del proyecto y las lecciones aprendidas.
+- **Reporte Final de Pruebas:** Los resultados de las pruebas se generan al ejecutar `npm test`.
+- **Documento de Cierre de Proyecto:** Documento que resume los logros y lecciones aprendidas.
