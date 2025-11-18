@@ -26,7 +26,6 @@ const EvaluationsTab: FC<{ project: Project; onUpdate: () => void }> = ({ projec
         setEvaluations(data);
       }
     } catch (error) {
-      console.error("Failed to fetch evaluations:", error);
     }
   };
 
@@ -37,13 +36,13 @@ const EvaluationsTab: FC<{ project: Project; onUpdate: () => void }> = ({ projec
     setSprintUsers(project.users);
   }, [selectedSprintId]);
 
-  const isTeacher = session?.user?.role === 'DOCENTE';
+  const isDocente = session?.user?.role === 'DOCENTE';
 
   return (
     <div className="p-4 bg-white rounded-lg shadow-md">
-      <h3 className="text-xl font-bold mb-4">Evaluations</h3>
+      <h3 className="text-xl font-bold mb-4">Evaluaciones</h3>
       <div className="mb-4">
-        <label htmlFor="sprint-select" className="mr-2">Select Sprint:</label>
+        <label htmlFor="sprint-select" className="mr-2">Seleccionar Sprint:</label>
         <select
           id="sprint-select"
           value={selectedSprintId || ""}
@@ -66,8 +65,9 @@ const EvaluationsTab: FC<{ project: Project; onUpdate: () => void }> = ({ projec
                   <p><strong>Feedback:</strong> {existingEval.feedback}</p>
                 </div>
               ) : (
-                isTeacher && selectedSprintId && (
+                isDocente && selectedSprintId && (
                   <EvaluationForm
+                    projectId={project.id}
                     sprintId={selectedSprintId}
                     studentId={user.userId}
                     onEvaluationSubmitted={fetchEvaluations}

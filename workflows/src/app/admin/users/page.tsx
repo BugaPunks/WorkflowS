@@ -3,95 +3,94 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { User } from "@/types";
-import { RoleName } from "@prisma/client";
+import { User, RoleName } from "@/types";
+import UserList from "@/app/components/UserList";
+import UserForm from "@/app/components/UserForm";
 
 export default function AdminUsersPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [users, setUsers] = useState<User[]>([]);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
     }
-    if (status === "authenticated" && session.user?.role !== "ADMIN") {
+    if (status === "authenticated" && session?.user?.role !== "ADMIN") {
       router.push("/");
     }
   }, [status, session, router]);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      if (session) {
-        try {
-          const res = await fetch("/api/users/list");
-          if (res.ok) {
-            setUsers(await res.json());
-          }
-        } catch (error) {
-          console.error("Failed to fetch users", error);
-        }
-      }
-    };
-    fetchUsers();
-  }, [session]);
-
-  const handleRoleChange = async (userId: string, newRole: RoleName) => {
+  const handleCreateUser = async (userData: Partial<User>) => {
     try {
-      const res = await fetch(`/api/users/${userId}/role`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: newRole }),
+      const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
       });
-
       if (res.ok) {
-        setUsers(
-          users.map((user) =>
-            user.id === userId ? { ...user, role: newRole } : user
-          )
-        );
+        setShowCreateForm(false);
+        // Refresh will be handled by UserList
       }
     } catch (error) {
-      console.error("Failed to update user role", error);
+    }
+  };
+
+  const handleUpdateUser = async (userData: Partial<User>) => {
+    if (!editingUser) return;
+    try {
+      const res = await fetch(`/api/users/${editingUser.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+      });
+      if (res.ok) {
+        setEditingUser(null);
+        // Refresh will be handled by UserList
+      }
+    } catch (error) {
     }
   };
 
   if (status === "loading" || session?.user?.role !== "ADMIN") {
-    return <div>Loading...</div>;
+    return <div>Cargando...</div>;
   }
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Manage Users</h1>
-      <div className="bg-white shadow-md rounded-lg p-4">
-        <table className="min-w-full">
-          <thead>
-            <tr>
-              <th className="text-left">Name</th>
-              <th className="text-left">Email</th>
-              <th className="text-left">Role</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.id}>
-                <td>{user.name}</td>
-                <td>{user.email}</td>
-                <td>
-                  <select
-                    value={user.role}
-                    onChange={(e) => handleRoleChange(user.id, e.target.value as RoleName)}
-                  >
-                    <option value="ESTUDIANTE">Estudiante</option>
-                    <option value="DOCENTE">Docente</option>
-                    <option value="ADMIN">Admin</option>
-                  </select>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Gestión de Usuarios</h1>
+        <button
+          onClick={() => setShowCreateForm(true)}
+          className="bg-green-500 hover:bg-green-700 text-white px-4 py-2 rounded"
+        >
+          Crear Usuario
+        </button>
       </div>
+
+      {showCreateForm && (
+        <div className="mb-6">
+          <UserForm
+            onSubmit={handleCreateUser}
+            onCancel={() => setShowCreateForm(false)}
+          />
+        </div>
+      )}
+
+      {editingUser && (
+        <div className="mb-6">
+          <UserForm
+            user={editingUser}
+            onSubmit={handleUpdateUser}
+            onCancel={() => setEditingUser(null)}
+          />
+        </div>
+      )}
+
+      <UserList
+        onEditUser={setEditingUser}
+      />
     </div>
   );
 }

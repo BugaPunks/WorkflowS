@@ -1,8 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+
+import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 
-const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
@@ -34,7 +34,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json(user);
   } catch (error) {
-    console.error(error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }

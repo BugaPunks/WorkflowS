@@ -21,14 +21,19 @@ describe('PUT /api/users/[userId]/role', () => {
   beforeEach(() => {
     mockPrisma = new PrismaClient();
     mockGetServerSession = require('next-auth').getServerSession;
+    jest.clearAllMocks();
   });
 
   it('debe actualizar el rol del usuario exitosamente', async () => {
     const userId = '1';
     const newRole = 'DOCENTE';
-    const updatedUser = { id: userId, role: newRole };
+    const updatedUser = { id: userId, name: 'User 1', email: 'user1@example.com', role: newRole };
 
-    mockGetServerSession.mockResolvedValue({ user: { role: 'ADMIN' } });
+    // Configurar sesión de admin
+    mockGetServerSession.mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN' }
+    });
+
     mockPrisma.user.update.mockResolvedValue(updatedUser);
 
     const request = new Request('http://localhost/api/users/1/role', {
@@ -60,11 +65,12 @@ describe('PUT /api/users/[userId]/role', () => {
     const response = await PUT(request as any, { params: { userId: '1' } });
 
     expect(response.status).toBe(401);
-    expect(await response.text()).toBe('Unauthorized');
+    const errorResponse = await response.json();
+    expect(errorResponse.error.message).toBe('No autorizado');
   });
 
   it('debe retornar error si el usuario no es admin', async () => {
-    mockGetServerSession.mockResolvedValue({ user: { role: 'ESTUDIANTE' } });
+    mockGetServerSession.mockResolvedValue({ user: { id: '1', role: 'ESTUDIANTE' } });
 
     const request = new Request('http://localhost/api/users/1/role', {
       method: 'PUT',
@@ -74,7 +80,8 @@ describe('PUT /api/users/[userId]/role', () => {
 
     const response = await PUT(request as any, { params: { userId: '1' } });
 
-    expect(response.status).toBe(401);
-    expect(await response.text()).toBe('Unauthorized');
+    expect(response.status).toBe(403);
+    const errorResponse = await response.json();
+    expect(errorResponse.error.message).toBe('Acceso denegado');
   });
 });

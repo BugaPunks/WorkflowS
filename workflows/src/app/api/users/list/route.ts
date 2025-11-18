@@ -1,9 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+
+import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-const prisma = new PrismaClient();
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -23,7 +23,6 @@ export async function GET() {
     });
     return NextResponse.json(users);
   } catch (error) {
-    console.error(error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }

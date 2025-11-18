@@ -42,7 +42,6 @@ export default function Register() {
       }
     } catch (error) {
       setError("Something went wrong.");
-      console.error(error);
     }
   };
 

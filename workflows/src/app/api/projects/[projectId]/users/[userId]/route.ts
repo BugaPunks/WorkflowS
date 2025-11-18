@@ -1,9 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+
+import prisma from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-const prisma = new PrismaClient();
 
 export async function PUT(
   req: NextRequest,
@@ -27,7 +27,6 @@ export async function PUT(
 
     return NextResponse.json(updatedProjectUser);
   } catch (error) {
-    console.error(error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
@@ -51,7 +50,6 @@ export async function DELETE(
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {
-    console.error(error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }

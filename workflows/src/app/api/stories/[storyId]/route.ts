@@ -1,9 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+
+import prisma from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-const prisma = new PrismaClient();
 
 // UPDATE a user story
 export async function PUT(req: NextRequest, { params }: { params: { storyId: string } }) {

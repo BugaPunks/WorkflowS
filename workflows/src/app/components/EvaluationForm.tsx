@@ -4,12 +4,13 @@ import { useState, FormEvent } from 'react';
 import { useSession } from 'next-auth/react';
 
 interface EvaluationFormProps {
+  projectId: string;
   sprintId: string;
   studentId: string;
   onEvaluationSubmitted: () => void;
 }
 
-export default function EvaluationForm({ sprintId, studentId, onEvaluationSubmitted }: EvaluationFormProps) {
+export default function EvaluationForm({ projectId, sprintId, studentId, onEvaluationSubmitted }: EvaluationFormProps) {
   const { data: session } = useSession();
   const [score, setScore] = useState<number | ''>('');
   const [feedback, setFeedback] = useState('');
@@ -20,12 +21,12 @@ export default function EvaluationForm({ sprintId, studentId, onEvaluationSubmit
     setError('');
 
     if (score === '' || score < 0 || score > 100) {
-      setError('Score must be between 0 and 100.');
+      setError('La calificación debe estar entre 0 y 100.');
       return;
     }
 
     try {
-      const res = await fetch('/api/evaluations', {
+      const res = await fetch(`/api/projects/${projectId}/evaluations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -51,10 +52,10 @@ export default function EvaluationForm({ sprintId, studentId, onEvaluationSubmit
 
   return (
     <form onSubmit={handleSubmit} className="p-4 border rounded-lg bg-white mt-4">
-      <h4 className="font-bold mb-2">Submit Evaluation</h4>
+      <h4 className="font-bold mb-2">Enviar Evaluación</h4>
       {error && <p className="text-red-500">{error}</p>}
       <div className="mb-2">
-        <label htmlFor="score" className="block text-sm font-medium text-gray-700">Score (0-100)</label>
+        <label htmlFor="score" className="block text-sm font-medium text-gray-700">Calificación (0-100)</label>
         <input
           type="number"
           id="score"
@@ -65,7 +66,7 @@ export default function EvaluationForm({ sprintId, studentId, onEvaluationSubmit
         />
       </div>
       <div className="mb-2">
-        <label htmlFor="feedback" className="block text-sm font-medium text-gray-700">Feedback</label>
+        <label htmlFor="feedback" className="block text-sm font-medium text-gray-700">Retroalimentación</label>
         <textarea
           id="feedback"
           value={feedback}
@@ -75,7 +76,7 @@ export default function EvaluationForm({ sprintId, studentId, onEvaluationSubmit
         />
       </div>
       <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-        Submit
+        Enviar
       </button>
     </form>
   );

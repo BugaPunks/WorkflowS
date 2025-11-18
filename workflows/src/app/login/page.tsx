@@ -30,7 +30,6 @@ export default function Login() {
       router.replace("/");
     } catch (error) {
       setError("Something went wrong.");
-      console.error(error);
     }
   };
 

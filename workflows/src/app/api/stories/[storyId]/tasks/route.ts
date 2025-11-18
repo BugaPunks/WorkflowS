@@ -1,9 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+
+import prisma from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-const prisma = new PrismaClient();
 
 export async function POST(
   req: NextRequest,
@@ -33,7 +33,6 @@ export async function POST(
 
     return NextResponse.json(task);
   } catch (error) {
-    console.error("Failed to create task", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }

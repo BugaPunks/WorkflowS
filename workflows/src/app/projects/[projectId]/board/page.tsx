@@ -51,17 +51,17 @@ export default function BoardPage() {
 
   const handleDragEnd = async (event: DragEndEvent) => { /* ... (drag logic remains the same) */ };
 
-  if (!project) return <div>Loading...</div>;
+  if (!project) return <div>Cargando...</div>;
 
-  const columns: { id: TaskStatus; title: string }[] = [ { id: "PENDING", title: "To Do" }, { id: "IN_PROGRESS", title: "In Progress" }, { id: "COMPLETED", title: "Completed" } ];
+  const columns: { id: TaskStatus; title: string }[] = [ { id: "PENDING", title: "Por Hacer" }, { id: "IN_PROGRESS", title: "En Progreso" }, { id: "COMPLETED", title: "Completado" } ];
 
   return (
     <>
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="p-8 bg-gray-100 min-h-screen">
           <header className="mb-8">
-            <Link href={`/projects/${projectId}`} className="text-indigo-600 hover:underline">&larr; Back to Project</Link>
-            <h1 className="text-4xl font-bold mt-2">{project.name} - Kanban Board</h1>
+            <Link href={`/projects/${projectId}`} className="text-indigo-600 hover:underline">&larr; Volver al Proyecto</Link>
+            <h1 className="text-4xl font-bold mt-2">{project.name} - Tablero Kanban</h1>
             <select value={activeSprintId} onChange={e => setActiveSprintId(e.target.value)} className="mt-4 p-2 border rounded">
               <option value="backlog">Backlog</option>
               {project.sprints.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}

@@ -21,7 +21,6 @@ const TaskDetailsModal: FC<TaskDetailsModalProps> = ({ task, onClose, onUpdate }
         setComments(data);
       }
     } catch (error) {
-      console.error("Failed to fetch comments:", error);
     }
   };
 
@@ -43,7 +42,6 @@ const TaskDetailsModal: FC<TaskDetailsModalProps> = ({ task, onClose, onUpdate }
       fetchComments(); // Refresh comments
       onUpdate(); // Refresh board data
     } catch (error) {
-      console.error("Failed to post comment:", error);
     }
   };
 

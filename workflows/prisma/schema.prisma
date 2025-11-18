@@ -28,6 +28,18 @@ enum TaskStatus {
   IN_PROGRESS
   COMPLETED
 }
+enum EventType {
+  SPRINT_START
+  SPRINT_END
+  EVALUATION_DEADLINE
+  MILESTONE
+  CUSTOM
+}
+enum ChannelType {
+  PROJECT
+  DIRECT
+  SPRINT
+}
 
 // All Models defined completely and correctly
 model User {
@@ -43,6 +55,11 @@ model User {
   notifications       Notification[]
   documents           Document[]    @relation("UploadedBy")
   comments            Comment[]     @relation("AuthoredComments")
+  createdEvents       Event[]
+  createdChannels     ChatChannel[] @relation("CreatedChannels")
+  sentMessages        Message[]
+  readMessages        MessageRead[]
+  exports             ExportHistory[]
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 }
@@ -58,6 +75,9 @@ model Project {
   sprints      Sprint[]
   evaluations  Evaluation[]
   documents    Document[]
+  events       Event[]
+  channels     ChatChannel[]
+  exports      ExportHistory[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 }
@@ -81,6 +101,8 @@ model Sprint {
   projectId   String
   stories     UserStory[]
   evaluations Evaluation[]
+  events      Event[]
+  channels    ChatChannel[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
@@ -168,4 +190,97 @@ model Comment {
   authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  type        EventType
+  startDate   DateTime
+  endDate     DateTime?
+  allDay      Boolean   @default(false)
+  color       String?   // Hex color for calendar display
+  project     Project   @relation(fields: [projectId], references: [id])
+  projectId   String
+  sprint      Sprint?   @relation(fields: [sprintId], references: [id])
+  sprintId    String?
+  createdBy   User      @relation(fields: [createdById], references: [id])
+  createdById String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model ChatChannel {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  type        ChannelType
+  project     Project?    @relation(fields: [projectId], references: [id])
+  projectId   String?
+  sprint      Sprint?     @relation(fields: [sprintId], references: [id])
+  sprintId    String?
+  createdBy   User        @relation("CreatedChannels", fields: [createdById], references: [id])
+  createdById String
+  messages    Message[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Message {
+  id            String      @id @default(cuid())
+  content       String
+  channel       ChatChannel @relation(fields: [channelId], references: [id])
+  channelId     String
+  sender        User        @relation(fields: [senderId], references: [id])
+  senderId      String
+  replyTo       Message?    @relation("MessageReplies", fields: [replyToId], references: [id])
+  replyToId     String?
+  replies       Message[]   @relation("MessageReplies")
+  readBy        MessageRead[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model MessageRead {
+  id        String   @id @default(cuid())
+  message   Message  @relation(fields: [messageId], references: [id])
+  messageId String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  readAt    DateTime @default(now())
+
+  @@unique([messageId, userId])
+}
+
+enum ExportFormat {
+  JSON
+  CSV
+  PDF
+  EXCEL
+}
+
+enum ExportType {
+  PROJECT
+  REPORTS
+  EVALUATIONS
+  DASHBOARD
+}
+
+model ExportHistory {
+  id          String       @id @default(cuid())
+  user        User         @relation(fields: [userId], references: [id])
+  userId      String
+  project     Project?     @relation(fields: [projectId], references: [id])
+  projectId   String?
+  type        ExportType
+  format      ExportFormat
+  fileName    String
+  fileSize    Int?         // Size in bytes
+  status      String       @default("pending") // pending, processing, completed, failed
+  downloadUrl String?
+  expiresAt   DateTime?
+  createdAt   DateTime     @default(now())
+  completedAt DateTime?
+  error       String?
 }

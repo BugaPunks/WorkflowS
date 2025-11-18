@@ -1,21 +1,24 @@
-import { PrismaClient } from "@prisma/client";
-import { NextResponse, NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
+import { NextResponse, NextRequest } from "next/server";
+import { requireAdmin } from "@/lib/auth-utils";
+import { handleApiError, ERROR_MESSAGES } from "@/lib/error-utils";
 
 export async function PUT(
   req: NextRequest,
   { params }: { params: { userId: string } }
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user?.role !== "ADMIN") {
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
-
   try {
+    await requireAdmin();
+
     const { role } = await req.json();
+
+    if (!role || !['ADMIN', 'DOCENTE', 'ESTUDIANTE'].includes(role)) {
+      return NextResponse.json(
+        { error: { message: ERROR_MESSAGES.INVALID_ROLE, statusCode: 400 } },
+        { status: 400 }
+      );
+    }
 
     const updatedUser = await prisma.user.update({
       where: { id: params.userId },
@@ -24,7 +27,6 @@ export async function PUT(
 
     return NextResponse.json(updatedUser);
   } catch (error) {
-    console.error("Failed to update user role", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return handleApiError(error);
   }
 }

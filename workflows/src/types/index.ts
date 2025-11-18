@@ -1,5 +1,7 @@
 import { RoleName, ScrumRole, UserStoryStatus, TaskStatus } from "@prisma/client";
 
+export type { RoleName, ScrumRole, UserStoryStatus, TaskStatus };
+
 // Core Models
 export interface User {
   id: string;

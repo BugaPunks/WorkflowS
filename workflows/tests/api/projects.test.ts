@@ -100,9 +100,10 @@ describe('POST /api/projects', () => {
     });
 
     const response = await POST(request as any);
+    const errorResponse = await response.json();
 
     expect(response.status).toBe(401);
-    expect(await response.text()).toBe('Unauthorized');
+    expect(errorResponse.error.message).toBe('No autorizado');
   });
 
   it('debe retornar error si faltan campos requeridos', async () => {
@@ -119,7 +120,8 @@ describe('POST /api/projects', () => {
     const response = await POST(request as any);
 
     expect(response.status).toBe(400);
-    expect(await response.text()).toBe('Missing required fields');
+    const errorResponse = await response.json();
+    expect(errorResponse.error.message).toBe('Faltan campos requeridos');
   });
 });
 
@@ -150,7 +152,8 @@ describe('GET /api/projects', () => {
     const response = await GET();
 
     expect(response.status).toBe(401);
-    expect(await response.text()).toBe('Unauthorized');
+    const errorResponse = await response.json();
+    expect(errorResponse.error.message).toBe('No autorizado');
   });
 });
 
@@ -167,13 +170,19 @@ describe('PUT /api/projects/[projectId]', () => {
     const projectId = '1';
     const updateData = {
       name: 'Updated Project',
-      description: 'Updated Description',
-      startDate: '2023-02-01',
-      endDate: '2023-11-30',
+      description: 'Updated description',
+      startDate: '2024-01-01',
+      endDate: '2024-12-31',
     };
-    const updatedProject = { id: projectId, ...updateData, startDate: new Date(updateData.startDate), endDate: new Date(updateData.endDate) };
+    const updatedProject = {
+      id: projectId,
+      name: updateData.name,
+      description: updateData.description,
+      startDate: new Date(updateData.startDate),
+      endDate: new Date(updateData.endDate),
+    };
 
-    mockGetServerSession.mockResolvedValue({ user: { id: '1' } });
+    mockGetServerSession.mockResolvedValue({ user: { id: '1', role: 'DOCENTE' } });
     mockPrisma.project.update.mockResolvedValue(updatedProject);
 
     const request = createMockRequest('http://localhost/api/projects/1', {
@@ -212,9 +221,10 @@ describe('PUT /api/projects/[projectId]', () => {
     });
 
     const response = await PUT(request as any, { params: { projectId: '1' } });
+    const errorResponse = await response.json();
 
     expect(response.status).toBe(401);
-    expect(await response.text()).toBe('Unauthorized');
+    expect(errorResponse.error.message).toBe('No autorizado');
   });
 });
 
@@ -230,7 +240,7 @@ describe('DELETE /api/projects/[projectId]', () => {
   it('debe eliminar el proyecto exitosamente', async () => {
     const projectId = '1';
 
-    mockGetServerSession.mockResolvedValue({ user: { id: '1' } });
+    mockGetServerSession.mockResolvedValue({ user: { id: '1', role: 'ADMIN' } });
     mockPrisma.projectUser.deleteMany.mockResolvedValue({});
     mockPrisma.document.deleteMany.mockResolvedValue({});
     mockPrisma.evaluation.deleteMany.mockResolvedValue({});
@@ -257,8 +267,9 @@ describe('DELETE /api/projects/[projectId]', () => {
     });
 
     const response = await DELETE(request as any, { params: { projectId: '1' } });
+    const errorResponse = await response.json();
 
     expect(response.status).toBe(401);
-    expect(await response.text()).toBe('Unauthorized');
+    expect(errorResponse.error.message).toBe('No autorizado');
   });
 });

@@ -1,23 +1,21 @@
-import { PrismaClient } from "@prisma/client";
-import { NextResponse, NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
+import { NextResponse, NextRequest } from "next/server";
+import { requireAuth } from "@/lib/auth-utils";
+import { handleApiError, ERROR_MESSAGES } from "@/lib/error-utils";
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
-
   try {
+    const session = await requireAuth();
+
     const body = await req.json();
     const { name, description, startDate, endDate, users } = body;
 
     if (!name || !startDate || !endDate) {
-      return new NextResponse("Missing required fields", { status: 400 });
+      return NextResponse.json(
+        { error: { message: ERROR_MESSAGES.MISSING_FIELDS, statusCode: 400 } },
+        { status: 400 }
+      );
     }
 
     const project = await prisma.project.create({
@@ -37,19 +35,14 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(project);
   } catch (error) {
-    console.error(error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return handleApiError(error);
   }
 }
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
-
   try {
+    const session = await requireAuth();
+
     const projects = await prisma.project.findMany({
       include: {
         users: {
@@ -62,7 +55,6 @@ export async function GET() {
 
     return NextResponse.json(projects);
   } catch (error) {
-    console.error(error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return handleApiError(error);
   }
 }

@@ -24,7 +24,6 @@ const BurndownChart = ({ sprintId }: { sprintId: string | null }) => {
         setLoading(false);
       })
       .catch(error => {
-        console.error("Failed to fetch burndown data", error);
         setLoading(false);
       });
   }, [sprintId]);

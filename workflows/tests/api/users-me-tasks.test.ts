@@ -66,6 +66,7 @@ describe('GET /api/users/me/tasks', () => {
     const response = await GET(new Request('http://localhost/api/users/me/tasks') as any);
 
     expect(response.status).toBe(401);
-    expect(await response.text()).toBe('Unauthorized');
+    const errorResponse = await response.json();
+    expect(errorResponse.error.message).toBe('No autorizado');
   });
 });

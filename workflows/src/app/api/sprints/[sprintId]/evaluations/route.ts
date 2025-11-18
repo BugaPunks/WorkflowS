@@ -26,7 +26,6 @@ export async function GET(
     });
     return NextResponse.json(evaluations);
   } catch (error) {
-    console.error("Failed to fetch evaluations:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }

@@ -1,9 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+
+import prisma from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-const prisma = new PrismaClient();
 
 // DELETE a document
 export async function DELETE(req: NextRequest, { params }: { params: { documentId: string } }) {
@@ -28,7 +28,6 @@ export async function DELETE(req: NextRequest, { params }: { params: { documentI
 
     return new NextResponse(null, { status: 204 }); // No Content
   } catch (error) {
-    console.error(error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }

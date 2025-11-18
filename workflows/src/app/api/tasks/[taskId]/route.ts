@@ -1,9 +1,8 @@
-import { PrismaClient, TaskStatus } from "@prisma/client";
+
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 // UPDATE a task
 export async function PUT(req: NextRequest, { params }: { params: { taskId: string } }) {

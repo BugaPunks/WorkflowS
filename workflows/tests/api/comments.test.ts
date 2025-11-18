@@ -1,5 +1,6 @@
 import { GET, POST } from '../../src/app/api/tasks/[taskId]/comments/route';
 import { PrismaClient } from '@prisma/client';
+import { NextRequest } from 'next/server';
 
 jest.mock('@prisma/client', () => {
   const mockPrisma = {
@@ -11,8 +12,12 @@ jest.mock('@prisma/client', () => {
   return { PrismaClient: jest.fn(() => mockPrisma) };
 });
 
-jest.mock('next-auth', () => ({
+jest.mock('next-auth/next', () => ({
   getServerSession: jest.fn(),
+}));
+
+jest.mock('@/lib/auth', () => ({
+  authOptions: {},
 }));
 
 describe('GET /api/tasks/[taskId]/comments', () => {
@@ -31,7 +36,8 @@ describe('GET /api/tasks/[taskId]/comments', () => {
     mockGetServerSession.mockResolvedValue({ user: { id: '1' } });
     mockPrisma.comment.findMany.mockResolvedValue(comments);
 
-    const response = await GET(new Request('http://localhost/api/tasks/task1/comments') as any, { params: { taskId } });
+    const request = new NextRequest('http://localhost/api/tasks/task1/comments');
+    const response = await GET(request, { params: { taskId } });
     const result = await response.json();
 
     expect(response.status).toBe(200);
@@ -41,7 +47,8 @@ describe('GET /api/tasks/[taskId]/comments', () => {
   it('debe retornar error si no hay sesion', async () => {
     mockGetServerSession.mockResolvedValue(null);
 
-    const response = await GET(new Request('http://localhost/api/tasks/task1/comments') as any, { params: { taskId: 'task1' } });
+    const request = new NextRequest('http://localhost/api/tasks/task1/comments');
+    const response = await GET(request, { params: { taskId: 'task1' } });
 
     expect(response.status).toBe(401);
     expect(await response.text()).toBe('Unauthorized');
@@ -65,29 +72,29 @@ describe('POST /api/tasks/[taskId]/comments', () => {
     mockGetServerSession.mockResolvedValue({ user: { id: 'user1' } });
     mockPrisma.comment.create.mockResolvedValue(createdComment);
 
-    const request = new Request('http://localhost/api/tasks/task1/comments', {
+    const request = new NextRequest('http://localhost/api/tasks/task1/comments', {
       method: 'POST',
       body: JSON.stringify(commentData),
       headers: { 'Content-Type': 'application/json' },
     });
 
-    const response = await POST(request as any, { params: { taskId } });
+    const response = await POST(request, { params: { taskId } });
     const result = await response.json();
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(201);
     expect(result).toEqual(createdComment);
   });
 
   it('debe retornar error si falta texto', async () => {
     mockGetServerSession.mockResolvedValue({ user: { id: '1' } });
 
-    const request = new Request('http://localhost/api/tasks/task1/comments', {
+    const request = new NextRequest('http://localhost/api/tasks/task1/comments', {
       method: 'POST',
       body: JSON.stringify({}),
       headers: { 'Content-Type': 'application/json' },
     });
 
-    const response = await POST(request as any, { params: { taskId: 'task1' } });
+    const response = await POST(request, { params: { taskId: 'task1' } });
 
     expect(response.status).toBe(400);
     expect(await response.text()).toBe('Comment text is required');

@@ -21,7 +21,6 @@ export async function GET(
     });
     return NextResponse.json(comments);
   } catch (error) {
-    console.error("Failed to fetch comments:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
@@ -51,7 +50,6 @@ export async function POST(
 
     return NextResponse.json(comment, { status: 201 });
   } catch (error) {
-    console.error("Failed to create comment:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }

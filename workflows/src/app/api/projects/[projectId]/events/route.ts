@@ -1,9 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+
+import prisma from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-const prisma = new PrismaClient();
 
 // GET all sprints formatted as calendar events
 export async function GET(req: NextRequest, { params }: { params: { projectId: string } }) {
@@ -31,7 +31,6 @@ export async function GET(req: NextRequest, { params }: { params: { projectId: s
 
     return NextResponse.json(events);
   } catch (error) {
-    console.error(error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
